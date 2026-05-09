@@ -23,6 +23,7 @@
     "noFallthroughCasesInSwitch": false,
     "types": [
       "jest",
+      "node"
     ]
   }
 }
