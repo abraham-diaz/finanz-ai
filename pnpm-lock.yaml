@@ -6,11 +6,7 @@ settings:
 
 importers:
 
-  .:
-    devDependencies:
-      typescript:
-        specifier: ^6.0.3
-        version: 6.0.3
+  .: {}
 
   apps/backend:
     dependencies:
@@ -6762,7 +6758,8 @@ snapshots:
 
   typescript@5.9.3: {}
 
-  typescript@6.0.3: {}
+  typescript@6.0.3:
+    optional: true
 
   uglify-js@3.19.3:
     optional: true
