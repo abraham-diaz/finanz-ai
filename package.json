@@ -5,5 +5,8 @@
     "workspaces": [
         "packages/*",
         "apps/*"
-    ]
+    ],
+    "scripts": {
+        "pnpm run:dev ": "cd apps/backend && pnpm start "
+    }
 }
