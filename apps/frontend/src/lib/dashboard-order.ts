@@ -1,13 +1,25 @@
-export type WidgetId = "balance" | "income-expense" | "accounts" | "categories";
+export type WidgetId =
+  | "balance"
+  | "income-expense"
+  | "accounts"
+  | "categories"
+  | "category-filter";
 
 export const WIDGETS: { id: WidgetId; label: string }[] = [
   { id: "balance", label: "Saldo total" },
   { id: "income-expense", label: "Ingresos y gastos" },
   { id: "accounts", label: "Cuentas" },
   { id: "categories", label: "Gastos por categoría" },
+  { id: "category-filter", label: "Filtrar por categoría" },
 ];
 
-const DEFAULT_ORDER: WidgetId[] = ["balance", "income-expense", "accounts", "categories"];
+const DEFAULT_ORDER: WidgetId[] = [
+  "balance",
+  "income-expense",
+  "accounts",
+  "categories",
+  "category-filter",
+];
 const STORAGE_KEY = "finanzai:dashboard-order";
 
 export function getDashboardOrder(): WidgetId[] {

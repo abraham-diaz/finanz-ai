@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
 import { TransactionService } from './transaction.service';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { UpdateTransactionDto } from './dto/update-transaction.dto';
@@ -13,8 +13,13 @@ export class TransactionController {
   }
 
   @Get()
-  findAll() {
-    return this.transactionService.findAll();
+  findAll(@Query('categoryId') categoryId?: string | string[]) {
+    const categoryIds = categoryId
+      ? Array.isArray(categoryId)
+        ? categoryId
+        : [categoryId]
+      : undefined;
+    return this.transactionService.findAll(categoryIds);
   }
 
   @Get(':id')
