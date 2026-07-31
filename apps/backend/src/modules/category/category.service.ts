@@ -61,7 +61,7 @@ export class CategoryService {
     } catch (error) {
       if (FOREIGN_KEY_VIOLATION_CODES.includes(getPostgresErrorCode(error) ?? '')) {
         throw new ConflictException(
-          'This category has transactions assigned to it and cannot be deleted',
+          'This category has transactions or recurring expenses assigned to it and cannot be deleted',
         );
       }
       throw error;

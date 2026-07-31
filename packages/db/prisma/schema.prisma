@@ -21,6 +21,7 @@ model User {
   transactions Transaction[]
   categories    Category[]
   accounts      Account[]
+  recurringExpenses RecurringExpense[]
 }
 
 model Account {
@@ -41,6 +42,7 @@ model Category {
   user      User @relation(fields: [userId], references: [id])
   createdAt DateTime @default(now())
   transactions Transaction[]
+  recurringExpenses RecurringExpense[]
 }
 
 model Transaction {
@@ -59,4 +61,18 @@ model Transaction {
 enum TransactionType {
   INCOME
   EXPENSE
+}
+
+model RecurringExpense {
+  id                 String   @id @default(uuid())
+  description        String?
+  amount             Float
+  dayOfMonth         Int
+  active             Boolean  @default(true)
+  lastGeneratedMonth String?
+  userId             String
+  user               User     @relation(fields: [userId], references: [id])
+  categoryId         String
+  category           Category @relation(fields: [categoryId], references: [id])
+  createdAt          DateTime @default(now())
 }

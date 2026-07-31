@@ -126,3 +126,60 @@ export async function deleteCategory(id: string): Promise<void> {
     throw new Error(body?.message ?? `Failed to delete category: ${response.status}`);
   }
 }
+
+export interface RecurringExpense {
+  id: string;
+  description: string | null;
+  amount: number;
+  dayOfMonth: number;
+  active: boolean;
+  categoryId: string;
+}
+
+export async function fetchRecurringExpenses(): Promise<RecurringExpense[]> {
+  const response = await fetch(new URL("/recurring-expense", API_URL));
+  return readJsonOrThrow(response, "fetch recurring expenses");
+}
+
+export async function createRecurringExpense(data: {
+  amount: number;
+  description?: string;
+  dayOfMonth: number;
+  categoryId: string;
+  active?: boolean;
+}): Promise<RecurringExpense> {
+  const response = await fetch(new URL("/recurring-expense", API_URL), {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+  return readJsonOrThrow(response, "create recurring expense");
+}
+
+export async function updateRecurringExpense(
+  id: string,
+  data: {
+    amount?: number;
+    description?: string;
+    dayOfMonth?: number;
+    categoryId?: string;
+    active?: boolean;
+  }
+): Promise<RecurringExpense> {
+  const response = await fetch(new URL(`/recurring-expense/${id}`, API_URL), {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+  return readJsonOrThrow(response, "update recurring expense");
+}
+
+export async function deleteRecurringExpense(id: string): Promise<void> {
+  const response = await fetch(new URL(`/recurring-expense/${id}`, API_URL), {
+    method: "DELETE",
+  });
+  if (!response.ok) {
+    const body = await response.json().catch(() => null);
+    throw new Error(body?.message ?? `Failed to delete recurring expense: ${response.status}`);
+  }
+}
