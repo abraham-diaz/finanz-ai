@@ -3,6 +3,16 @@ import { DEFAULT_USER_ID, Prisma, prisma } from '@finanzia/db';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 
+function getPostgresErrorCode(error: unknown): string | undefined {
+  if (error instanceof Prisma.PrismaClientKnownRequestError) {
+    return error.code;
+  }
+  return (error as { cause?: { code?: string } })?.cause?.code;
+}
+
+const UNIQUE_VIOLATION_CODES = ['P2002', '23505'];
+const FOREIGN_KEY_VIOLATION_CODES = ['P2003', '23503', '23001'];
+
 @Injectable()
 export class CategoryService {
   async create(dto: CreateCategoryDto) {
@@ -11,7 +21,7 @@ export class CategoryService {
         data: { ...dto, userId: DEFAULT_USER_ID },
       });
     } catch (error) {
-      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+      if (UNIQUE_VIOLATION_CODES.includes(getPostgresErrorCode(error) ?? '')) {
         throw new ConflictException(`A category named "${dto.name}" already exists`);
       }
       throw error;
@@ -37,7 +47,7 @@ export class CategoryService {
     try {
       return await prisma.category.update({ where: { id }, data: dto });
     } catch (error) {
-      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+      if (UNIQUE_VIOLATION_CODES.includes(getPostgresErrorCode(error) ?? '')) {
         throw new ConflictException(`A category named "${dto.name}" already exists`);
       }
       throw error;
@@ -46,6 +56,15 @@ export class CategoryService {
 
   async remove(id: string) {
     await this.findOne(id);
-    await prisma.category.delete({ where: { id } });
+    try {
+      await prisma.category.delete({ where: { id } });
+    } catch (error) {
+      if (FOREIGN_KEY_VIOLATION_CODES.includes(getPostgresErrorCode(error) ?? '')) {
+        throw new ConflictException(
+          'This category has transactions assigned to it and cannot be deleted',
+        );
+      }
+      throw error;
+    }
   }
 }

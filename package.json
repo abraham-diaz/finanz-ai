@@ -7,6 +7,9 @@
     "apps/*"
   ],
   "scripts": {
-    "dev": "pnpm --filter @finanzia/db run build && cd apps/backend && pnpm start:dev"
+    "dev": "pnpm --filter @finanzia/db run build && concurrently -n backend,frontend -c blue,green \"pnpm --filter backend run start:dev\" \"pnpm --filter frontend run dev\""
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.4"
   }
 }

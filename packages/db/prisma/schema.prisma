@@ -20,12 +20,23 @@ model User {
   createdAt DateTime @default(now())
   transactions Transaction[]
   categories    Category[]
+  accounts      Account[]
+}
+
+model Account {
+  id        String   @id @default(uuid())
+  name      String
+  balance   Float    @default(0)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
 }
 
 model Category {
   id        String   @id @default(uuid())
   name      String   @unique
   description String?
+  icon      String?
   userId    String
   user      User @relation(fields: [userId], references: [id])
   createdAt DateTime @default(now())
