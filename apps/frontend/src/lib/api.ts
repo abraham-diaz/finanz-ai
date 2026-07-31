@@ -127,6 +127,30 @@ export async function deleteCategory(id: string): Promise<void> {
   }
 }
 
+export interface Transaction {
+  id: string;
+  amount: number;
+  description: string | null;
+  date: string;
+  categoryId: string;
+  transactionType: "INCOME" | "EXPENSE";
+}
+
+export async function createTransaction(data: {
+  amount: number;
+  description?: string;
+  date: string;
+  categoryId: string;
+  transactionType: "INCOME" | "EXPENSE";
+}): Promise<Transaction> {
+  const response = await fetch(new URL("/transaction", API_URL), {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+  return readJsonOrThrow(response, "create transaction");
+}
+
 export interface RecurringExpense {
   id: string;
   description: string | null;

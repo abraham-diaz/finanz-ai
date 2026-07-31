@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useState } from "react";
-import { Settings } from "lucide-react";
+import { Plus, Settings } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { BalanceHeroCard } from "@/components/balance-hero-card";
 import { IncomeExpenseDonut } from "@/components/income-expense-donut";
 import { CategoryBarChart } from "@/components/category-bar-chart";
 import { AccountsCard } from "@/components/accounts-card";
 import { SettingsView } from "@/components/settings-view";
+import { AddExpenseSheet } from "@/components/add-expense-sheet";
 import { fetchDashboardSummary, fetchAccounts, type DashboardSummary, type Account } from "@/lib/api";
 import { getDashboardOrder, type WidgetId } from "@/lib/dashboard-order";
 
@@ -15,6 +16,7 @@ function App() {
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [order, setOrder] = useState<WidgetId[]>(() => getDashboardOrder());
+  const [addingExpense, setAddingExpense] = useState(false);
 
   const loadAccounts = useCallback(() => {
     fetchAccounts()
@@ -22,12 +24,16 @@ function App() {
       .catch(() => setError("No se pudo cargar el dashboard. ¿Está el backend corriendo?"));
   }, []);
 
-  useEffect(() => {
+  const loadSummary = useCallback(() => {
     fetchDashboardSummary()
       .then(setSummary)
       .catch(() => setError("No se pudo cargar el dashboard. ¿Está el backend corriendo?"));
+  }, []);
+
+  useEffect(() => {
+    loadSummary();
     loadAccounts();
-  }, [loadAccounts]);
+  }, [loadSummary, loadAccounts]);
 
   if (view === "settings") {
     return (
@@ -92,6 +98,24 @@ function App() {
             <div key={id}>{widgetContent[id]}</div>
           ))}
         </div>
+      )}
+
+      <button
+        type="button"
+        onClick={() => setAddingExpense(true)}
+        aria-label="Añadir gasto"
+        className="fixed right-6 bottom-6 flex size-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg transition-colors hover:bg-(--primary-hover)"
+      >
+        <Plus className="size-6" />
+      </button>
+
+      {addingExpense && (
+        <AddExpenseSheet
+          onClose={() => setAddingExpense(false)}
+          onCreated={() => {
+            loadSummary();
+          }}
+        />
       )}
     </div>
   );
