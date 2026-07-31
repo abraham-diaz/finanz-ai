@@ -33,7 +33,7 @@ export function AddExpenseSheet({ onClose, onCreated }: AddExpenseSheetProps) {
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
-    const parsedAmount = Number(amount);
+    const parsedAmount = Number(amount.replace(",", "."));
     if (!parsedAmount || parsedAmount <= 0) {
       setError("Introduce un importe válido.");
       return;
@@ -91,13 +91,16 @@ export function AddExpenseSheet({ onClose, onCreated }: AddExpenseSheetProps) {
           </label>
           <input
             id="amount"
-            type="number"
+            type="text"
             inputMode="decimal"
-            step="0.01"
-            min="0"
             placeholder="0,00"
             value={amount}
-            onChange={(event) => setAmount(event.target.value)}
+            onChange={(event) => {
+              const value = event.target.value;
+              if (/^[0-9]*[.,]?[0-9]*$/.test(value)) {
+                setAmount(value);
+              }
+            }}
             className="rounded-md border border-border bg-transparent px-3 py-2 text-lg outline-none focus:border-primary"
             autoFocus
           />
