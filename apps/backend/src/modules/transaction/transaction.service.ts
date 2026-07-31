@@ -18,9 +18,12 @@ export class TransactionService {
     });
   }
 
-  findAll() {
+  findAll(categoryIds?: string[]) {
     return prisma.transaction.findMany({
-      where: { userId: DEFAULT_USER_ID },
+      where: {
+        userId: DEFAULT_USER_ID,
+        ...(categoryIds && categoryIds.length > 0 ? { categoryId: { in: categoryIds } } : {}),
+      },
       orderBy: { date: 'desc' },
     });
   }

@@ -136,6 +136,13 @@ export interface Transaction {
   transactionType: "INCOME" | "EXPENSE";
 }
 
+export async function fetchTransactions(categoryIds?: string[]): Promise<Transaction[]> {
+  const url = new URL("/transaction", API_URL);
+  categoryIds?.forEach((id) => url.searchParams.append("categoryId", id));
+  const response = await fetch(url);
+  return readJsonOrThrow(response, "fetch transactions");
+}
+
 export async function createTransaction(data: {
   amount: number;
   description?: string;

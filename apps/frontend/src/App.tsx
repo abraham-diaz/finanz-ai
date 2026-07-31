@@ -5,6 +5,7 @@ import { BalanceHeroCard } from "@/components/balance-hero-card";
 import { IncomeExpenseDonut } from "@/components/income-expense-donut";
 import { CategoryBarChart } from "@/components/category-bar-chart";
 import { AccountsCard } from "@/components/accounts-card";
+import { CategoryFilterCard } from "@/components/category-filter-card";
 import { SettingsView } from "@/components/settings-view";
 import { AddExpenseSheet } from "@/components/add-expense-sheet";
 import { fetchDashboardSummary, fetchAccounts, type DashboardSummary, type Account } from "@/lib/api";
@@ -73,6 +74,7 @@ function App() {
             </CardContent>
           </Card>
         ),
+        "category-filter": <CategoryFilterCard />,
       }
     : ({} as Record<WidgetId, React.ReactNode>);
 
