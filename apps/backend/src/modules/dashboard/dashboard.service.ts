@@ -32,7 +32,11 @@ export interface DailyBalancePoint {
   balance: number;
 }
 
-async function buildDailyBalance(start: Date, end: Date): Promise<DailyBalancePoint[]> {
+async function buildDailyBalance(
+  start: Date,
+  end: Date,
+  accountsBalance: number,
+): Promise<DailyBalancePoint[]> {
   const today = new Date();
   const lastMoment = new Date(Math.min(end.getTime() - DAY_MS, today.getTime()));
   if (lastMoment < start) return [];
@@ -53,7 +57,7 @@ async function buildDailyBalance(start: Date, end: Date): Promise<DailyBalancePo
 
   const totalDays = Math.floor((lastMoment.getTime() - start.getTime()) / DAY_MS) + 1;
   const points: DailyBalancePoint[] = [];
-  let cumulative = 0;
+  let cumulative = accountsBalance;
   for (let dayOffset = 0; dayOffset < totalDays; dayOffset++) {
     cumulative += netByDay.get(dayOffset) ?? 0;
     const date = new Date(start.getTime() + dayOffset * DAY_MS);
@@ -77,7 +81,7 @@ export class DashboardService {
       previousExpense,
       byCategoryRaw,
       categories,
-      dailyBalance,
+      accountsBalanceResult,
     ] = await Promise.all([
       sumByType(dateFilter, TransactionType.INCOME),
       sumByType(dateFilter, TransactionType.EXPENSE),
@@ -89,8 +93,11 @@ export class DashboardService {
         where: { userId: DEFAULT_USER_ID, transactionType: TransactionType.EXPENSE, date: dateFilter },
       }),
       prisma.category.findMany({ where: { userId: DEFAULT_USER_ID } }),
-      buildDailyBalance(start, end),
+      prisma.account.aggregate({ _sum: { balance: true }, where: { userId: DEFAULT_USER_ID } }),
     ]);
+
+    const accountsBalance = accountsBalanceResult._sum.balance ?? 0;
+    const dailyBalance = await buildDailyBalance(start, end, accountsBalance);
 
     const categoryById = new Map(categories.map((category) => [category.id, category]));
     const byCategory = byCategoryRaw
@@ -102,8 +109,8 @@ export class DashboardService {
       }))
       .sort((a, b) => b.total - a.total);
 
-    const balance = income - expense;
-    const previousBalance = previousIncome - previousExpense;
+    const balance = accountsBalance + income - expense;
+    const previousBalance = accountsBalance + previousIncome - previousExpense;
     const balanceChangePercent = previousBalance !== 0
       ? ((balance - previousBalance) / Math.abs(previousBalance)) * 100
       : null;
