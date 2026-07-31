@@ -1,12 +1,12 @@
 {
-    "name": "finanz-ai",
-    "private": true,
-    "version": "0.0.1",
-    "workspaces": [
-        "packages/*",
-        "apps/*"
-    ],
-    "scripts": {
-        "pnpm run:dev ": "cd apps/backend && pnpm start "
-    }
+  "name": "finanz-ai",
+  "private": true,
+  "version": "0.0.1",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "pnpm --filter @finanzia/db run build && cd apps/backend && pnpm start:dev"
+  }
 }
