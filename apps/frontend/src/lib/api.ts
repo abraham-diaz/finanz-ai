@@ -133,6 +133,7 @@ export interface Transaction {
   description: string | null;
   date: string;
   categoryId: string;
+  accountId: string | null;
   transactionType: "INCOME" | "EXPENSE";
 }
 
@@ -148,6 +149,7 @@ export async function createTransaction(data: {
   description?: string;
   date: string;
   categoryId: string;
+  accountId: string;
   transactionType: "INCOME" | "EXPENSE";
 }): Promise<Transaction> {
   const response = await fetch(new URL("/transaction", API_URL), {
