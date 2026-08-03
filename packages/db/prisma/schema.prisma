@@ -31,6 +31,7 @@ model Account {
   userId    String
   user      User     @relation(fields: [userId], references: [id])
   createdAt DateTime @default(now())
+  transactions Transaction[]
 }
 
 model Category {
@@ -54,6 +55,8 @@ model Transaction {
   user        User @relation(fields: [userId], references: [id])
   categoryId  String
   category    Category @relation(fields: [categoryId], references: [id])
+  accountId   String?
+  account     Account? @relation(fields: [accountId], references: [id])
   createdAt   DateTime @default(now())
   transactionType TransactionType
 }

@@ -19,6 +19,11 @@ export class UpdateTransactionDto {
   @IsOptional()
   categoryId?: string;
 
+  @IsString()
+  @IsNotEmpty()
+  @IsOptional()
+  accountId?: string;
+
   @IsEnum(TransactionType)
   @IsOptional()
   transactionType?: TransactionType;
