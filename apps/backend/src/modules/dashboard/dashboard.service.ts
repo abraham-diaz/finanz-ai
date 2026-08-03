@@ -32,6 +32,14 @@ export interface DailyBalancePoint {
   balance: number;
 }
 
+// Builds the cumulative running balance per day for the hero card's area chart.
+//
+// NOTE: `accountsBalance` is Account.balance as of *now* (transaction.service.ts keeps
+// it live-updated on every create/update/delete), but this function uses it as the
+// balance at the *start* of the range and adds each day's net forward from there. For
+// the current month, that means this month's transactions get counted twice — once
+// already baked into accountsBalance, once again walking forward. Flagged for review;
+// see the same pattern in getSummary's `balance` calculation below.
 async function buildDailyBalance(
   start: Date,
   end: Date,
@@ -109,6 +117,9 @@ export class DashboardService {
       }))
       .sort((a, b) => b.total - a.total);
 
+    // Same double-count concern as buildDailyBalance above: accountsBalance is already
+    // the live, up-to-date total (see transaction.service.ts), so adding this period's
+    // income/expense on top of it may overstate `balance` for the current month.
     const balance = accountsBalance + income - expense;
     const previousBalance = accountsBalance + previousIncome - previousExpense;
     const balanceChangePercent = previousBalance !== 0

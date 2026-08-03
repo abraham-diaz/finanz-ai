@@ -57,6 +57,10 @@ export class RecurringExpenseService {
     await prisma.recurringExpense.delete({ where: { id } });
   }
 
+  // Runs daily and generates one transaction per active recurring expense for the
+  // current month, once its day is reached. `lastGeneratedMonth` is the idempotency
+  // guard — without it, a day that's re-checked (or a run that's retried) would create
+  // duplicate transactions instead of a no-op.
   @Cron(CronExpression.EVERY_DAY_AT_8AM)
   async generateDueTransactions() {
     const now = new Date();
@@ -71,6 +75,8 @@ export class RecurringExpenseService {
     for (const expense of due) {
       if (expense.lastGeneratedMonth === currentMonth) continue;
 
+      // Clamp for months shorter than the configured day (e.g. dayOfMonth=31 in a
+      // 30-day month, or in February) — generate on the month's last day instead.
       const daysInMonth = new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
       const effectiveDay = Math.min(expense.dayOfMonth, daysInMonth);
       if (now.getUTCDate() < effectiveDay) continue;

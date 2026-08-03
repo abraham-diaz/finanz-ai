@@ -16,6 +16,8 @@ datasource db {
 model User {
   id        String   @id @default(uuid())
   userName  String   @unique
+  // Vestigial: this app is single-user with no auth (access is restricted at the
+  // network level via Tailscale), so this field is never actually checked.
   password  String
   createdAt DateTime @default(now())
   transactions Transaction[]

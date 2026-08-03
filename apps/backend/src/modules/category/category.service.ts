@@ -3,6 +3,10 @@ import { DEFAULT_USER_ID, Prisma, prisma } from '@finanzia/db';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 
+// Prisma error shapes are inconsistent in this version: most constraint violations
+// surface as PrismaClientKnownRequestError with a `P####` code, but some (seen on FK
+// RESTRICT violations) come through as a raw DriverAdapterError with the Postgres
+// SQLSTATE nested in `error.cause.code` instead. Check both shapes to be safe.
 function getPostgresErrorCode(error: unknown): string | undefined {
   if (error instanceof Prisma.PrismaClientKnownRequestError) {
     return error.code;
@@ -10,6 +14,8 @@ function getPostgresErrorCode(error: unknown): string | undefined {
   return (error as { cause?: { code?: string } })?.cause?.code;
 }
 
+// Left value is Prisma's own code, right value is the underlying Postgres SQLSTATE —
+// see the comment on getPostgresErrorCode above for why both are needed.
 const UNIQUE_VIOLATION_CODES = ['P2002', '23505'];
 const FOREIGN_KEY_VIOLATION_CODES = ['P2003', '23503', '23001'];
 
